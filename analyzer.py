@@ -19,9 +19,16 @@ CATEGORY_LABELS = {
 
 
 def get_api_key(user_key: str = "") -> str:
-    """APIキーを取得する（入力値 → 環境変数の優先順）。"""
+    """APIキーを取得する（入力値 → Streamlit Secrets → 環境変数の優先順）。"""
     if user_key and user_key.strip():
         return user_key.strip()
+    # Streamlit Cloud Secrets対応
+    try:
+        import streamlit as st
+        if "ANTHROPIC_API_KEY" in st.secrets:
+            return st.secrets["ANTHROPIC_API_KEY"]
+    except Exception:
+        pass
     env_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if env_key:
         return env_key

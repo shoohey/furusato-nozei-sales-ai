@@ -137,8 +137,15 @@ def main():
 
     prefectures_data = load_prefectures()
 
-    # 環境変数のAPIキーを取得
-    env_api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    # APIキーを取得（Streamlit Secrets → 環境変数）
+    env_api_key = ""
+    try:
+        if "ANTHROPIC_API_KEY" in st.secrets:
+            env_api_key = st.secrets["ANTHROPIC_API_KEY"]
+    except Exception:
+        pass
+    if not env_api_key:
+        env_api_key = os.environ.get("ANTHROPIC_API_KEY", "")
 
     # --- サイドバー ---
     with st.sidebar:
