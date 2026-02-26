@@ -403,12 +403,25 @@ def display_results(products: list[dict], params: dict):
             for idx, (site_name, count) in enumerate(site_counts.items()):
                 badge_cls = SITE_BADGE_CLASS.get(site_name, "")
                 with site_cols[idx]:
-                    count_str = f"{count}件" if count is not None else "取得不可"
+                    if count is not None:
+                        count_str = f"{count}件"
+                    else:
+                        count_str = "⏳ 未取得"
                     st.markdown(
                         f'<span class="site-badge {badge_cls}">{site_name}</span>'
                         f"<br><strong>{count_str}</strong>",
                         unsafe_allow_html=True,
                     )
+
+            # 未取得サイトがある場合の注記
+            failed_sites = [s for s, c in site_counts.items() if c is None]
+            if failed_sites:
+                st.caption(
+                    f"⚠️ {', '.join(failed_sites)} は件数未取得です"
+                    "（サイト側の応答遅延やJavaScript描画のため）。"
+                    "掲載がないという意味ではありません。"
+                    "正確な件数は各サイトで直接ご確認ください。"
+                )
 
             st.info(f"💡 **営業推薦理由:** {product.get('recommendation', 'なし')}")
 
