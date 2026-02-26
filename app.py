@@ -180,6 +180,16 @@ def main():
             index=0,
         )
 
+        # 調査商品数
+        product_count = st.slider(
+            "調査商品数",
+            min_value=3,
+            max_value=30,
+            value=10,
+            step=1,
+            help="AIがリストアップする商品の数",
+        )
+
         st.divider()
 
         # APIキー入力（環境変数があれば省略可）
@@ -224,7 +234,7 @@ def main():
 
     # --- メインエリア ---
     if start_button and api_key:
-        run_analysis(api_key, prefecture, municipality, category)
+        run_analysis(api_key, prefecture, municipality, category, product_count)
     elif "results" in st.session_state:
         display_results(st.session_state["results"], st.session_state["params"])
     else:
@@ -261,19 +271,19 @@ def show_welcome():
         """)
 
 
-def run_analysis(api_key: str, prefecture: str, municipality: str, category: str):
+def run_analysis(api_key: str, prefecture: str, municipality: str, category: str, product_count: int = 10):
     """分析を実行する。"""
-    st.subheader(f"📍 {prefecture} {municipality} - {category}")
+    st.subheader(f"📍 {prefecture} {municipality} - {category}（{product_count}件調査）")
 
     progress = st.progress(0)
     status = st.empty()
 
     # Step 1: Claude APIで穴場特産品を発掘
-    status.info("🔍 AIが地域の穴場商品を発掘中...")
+    status.info(f"🔍 AIが地域の穴場商品を{product_count}件発掘中...")
     progress.progress(10)
 
     try:
-        products = analyze_products(api_key, prefecture, municipality, category)
+        products = analyze_products(api_key, prefecture, municipality, category, product_count=product_count)
     except Exception as e:
         st.error(f"AI分析でエラーが発生しました: {str(e)}")
         return

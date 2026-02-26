@@ -40,6 +40,7 @@ def analyze_products(
     prefecture: str,
     municipality: str,
     category: str,
+    product_count: int = 10,
 ) -> list[dict]:
     """
     Claude APIを使って地域の穴場特産品を発掘する。
@@ -49,6 +50,7 @@ def analyze_products(
         prefecture: 都道府県名
         municipality: 市区町村名
         category: 商品カテゴリ
+        product_count: リストアップする商品数
 
     Returns:
         list[dict]: 穴場商品リスト
@@ -89,7 +91,7 @@ def analyze_products(
 - どの地域でも似たような商品が出ているもの（例：普通の和牛切り落とし）
 
 ## 調査内容
-上記の条件を踏まえて、{location}で実際に生産・製造されている{category}の**穴場商品**を5〜10個リストアップしてください。
+上記の条件を踏まえて、{location}で実際に生産・製造されている{category}の**穴場商品**を**{product_count}個**リストアップしてください。
 架空の商品は含めないでください。確信が持てない商品は「confidence: 低」と明記してください。
 
 各商品について以下の情報を調べてください：
@@ -129,9 +131,12 @@ def analyze_products(
 ```
 """
 
+    # 商品数に応じてトークン数を調整（1商品あたり約300トークン）
+    max_tokens = min(8192, max(4096, product_count * 400))
+
     response = client.messages.create(
         model="claude-sonnet-4-20250514",
-        max_tokens=4096,
+        max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
 
